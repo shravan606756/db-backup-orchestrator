@@ -139,7 +139,7 @@ docker compose up -d --build
 | GET | `/api/backups/download/{id}` | Download the backup file for a given job ID |
 
 
-## Future Roadmap & Scalability
+## 9. Future Roadmap & Scalability
 
 The current architecture is designed as a foundational unit for enterprise data security. The following enhancements are planned to scale the system for multi-cloud and petabyte-scale environments:
 
