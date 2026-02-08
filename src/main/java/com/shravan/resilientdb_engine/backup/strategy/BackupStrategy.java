@@ -7,16 +7,16 @@ import com.shravan.resilientdb_engine.backup.entity.DatabaseType;
  */
 public interface BackupStrategy {
     /**
-     * Checks if the strategy supports the given database type.
+     * Gets the database type supported by this strategy.
      *
-     * @param databaseType the database type to check
-     * @return true if supported, false otherwise
+     * @return the supported DatabaseType
      */
-    boolean supports(DatabaseType databaseType);
+    DatabaseType getSupportedType();
     /**
      * Executes the backup operation for the given job.
      *
      * @param backupJob the backup job details
+     * @throws Exception if backup execution fails
      */
-    void executeBackup(BackupJob backupJob);
+    void executeBackup(BackupJob backupJob) throws Exception;
 }

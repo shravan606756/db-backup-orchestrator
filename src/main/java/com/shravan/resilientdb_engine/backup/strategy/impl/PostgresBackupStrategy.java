@@ -9,12 +9,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class PostgresBackupStrategy implements BackupStrategy {
     @Override
-    public boolean supports(DatabaseType databaseType) {
-        return databaseType == DatabaseType.POSTGRESQL;
+    public DatabaseType getSupportedType() {
+        return DatabaseType.POSTGRESQL;
     }
     @Override
-    public void executeBackup(BackupJob backupJob) {
+    public void executeBackup(BackupJob backupJob) throws Exception {
         // Simulation of PostgreSQL backup execution
         System.out.println("Executing PostgreSQL backup for job: " + backupJob.getJobName());
+        Thread.sleep(3000); // Simulate work
     }
 }

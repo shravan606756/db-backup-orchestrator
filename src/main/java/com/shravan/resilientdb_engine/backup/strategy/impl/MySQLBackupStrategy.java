@@ -1,6 +1,7 @@
-package com.shravan.resilientdb_engine.backup.strategy;
+package com.shravan.resilientdb_engine.backup.strategy.impl;
 import com.shravan.resilientdb_engine.backup.entity.BackupJob;
 import com.shravan.resilientdb_engine.backup.entity.DatabaseType;
+import com.shravan.resilientdb_engine.backup.strategy.BackupStrategy;
 import org.springframework.stereotype.Component;
 /**
  * Strategy implementation for MySQL database backups.
@@ -8,13 +9,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class MySQLBackupStrategy implements BackupStrategy {
     @Override
-    public boolean supports(DatabaseType databaseType) {
-        return databaseType == DatabaseType.MYSQL;
+    public DatabaseType getSupportedType() {
+        return DatabaseType.MYSQL;
     }
     @Override
-    public void executeBackup(BackupJob backupJob) {
+    public void executeBackup(BackupJob backupJob) throws Exception {
         // Simulation of backup execution
         System.out.println("Executing MySQL backup for job: " + backupJob.getJobName());
-        // In a real implementation, this would trigger a mysqldump or similar command
+        Thread.sleep(3000); // Simulate work
     }
 }

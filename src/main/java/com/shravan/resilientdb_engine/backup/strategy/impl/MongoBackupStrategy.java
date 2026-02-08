@@ -9,12 +9,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class MongoBackupStrategy implements BackupStrategy {
     @Override
-    public boolean supports(DatabaseType databaseType) {
-        return databaseType == DatabaseType.MONGODB;
+    public DatabaseType getSupportedType() {
+        return DatabaseType.MONGODB;
     }
     @Override
-    public void executeBackup(BackupJob backupJob) {
+    public void executeBackup(BackupJob backupJob) throws Exception {
         // Simulation of MongoDB backup execution
         System.out.println("Executing MongoDB backup for job: " + backupJob.getJobName());
+        Thread.sleep(3000); // Simulate work
     }
 }

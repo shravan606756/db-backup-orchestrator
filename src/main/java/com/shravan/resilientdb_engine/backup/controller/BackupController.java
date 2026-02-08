@@ -3,10 +3,15 @@ import com.shravan.resilientdb_engine.backup.dto.BackupJobResponse;
 import com.shravan.resilientdb_engine.backup.dto.CreateBackupRequest;
 import com.shravan.resilientdb_engine.backup.entity.BackupJob;
 import com.shravan.resilientdb_engine.backup.entity.BackupStatus;
+import com.shravan.resilientdb_engine.backup.entity.DatabaseType;
 import com.shravan.resilientdb_engine.backup.service.BackupService;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.stream.Collectors;
 /**
@@ -16,9 +21,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/backups")
 public class BackupController {
     private final BackupService backupService;
+
     public BackupController(BackupService backupService) {
         this.backupService = backupService;
     }
+
     /**
      * Create a new backup job.
      * POST /api/backups
@@ -28,6 +35,7 @@ public class BackupController {
         BackupJob createdJob = backupService.createBackupJob(request);
         return new ResponseEntity<>(BackupJobResponse.fromEntity(createdJob), HttpStatus.CREATED);
     }
+
     /**
      * Get a backup job by ID.
      * GET /api/backups/{id}
@@ -37,6 +45,7 @@ public class BackupController {
         BackupJob backupJob = backupService.getBackupJobById(id);
         return ResponseEntity.ok(BackupJobResponse.fromEntity(backupJob));
     }
+
     /**
      * Get all backup jobs.
      * GET /api/backups
@@ -49,6 +58,7 @@ public class BackupController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responseList);
     }
+
     /**
      * Get backup jobs by status.
      * GET /api/backups/status/{status}
@@ -61,6 +71,7 @@ public class BackupController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responseList);
     }
+
     /**
      * Update the status of a backup job.
      * PATCH /api/backups/{id}/status
@@ -72,6 +83,7 @@ public class BackupController {
         BackupJob updatedJob = backupService.updateBackupStatus(id, status);
         return ResponseEntity.ok(BackupJobResponse.fromEntity(updatedJob));
     }
+
     /**
      * Get the latest backup jobs.
      * GET /api/backups/latest
@@ -83,5 +95,35 @@ public class BackupController {
                 .map(BackupJobResponse::fromEntity)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responseList);
+    }
+
+    /**
+     * Upload a backup file.
+     * POST /api/backups/upload
+     */
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<BackupJobResponse> uploadBackup(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("jobName") String jobName,
+            @RequestParam(value = "databaseType", required = false, defaultValue = "POSTGRESQL") DatabaseType databaseType) {
+        BackupJob createdJob = backupService.uploadBackup(file, jobName, databaseType);
+        return new ResponseEntity<>(BackupJobResponse.fromEntity(createdJob), HttpStatus.CREATED);
+    }
+
+    /**
+     * Download a backup file.
+     * GET /api/backups/download/{id}
+     */
+    @GetMapping("/download/{id}")
+    public ResponseEntity<Resource> downloadBackup(@PathVariable Long id) {
+        Resource resource = backupService.downloadBackup(id);
+        String filename = resource.getFilename();
+        if (filename == null) {
+            filename = "download";
+        }
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
     }
 }

@@ -2,7 +2,6 @@ package com.shravan.resilientdb_engine.backup.event;
 import com.shravan.resilientdb_engine.backup.entity.BackupJob;
 import com.shravan.resilientdb_engine.backup.entity.BackupStatus;
 import com.shravan.resilientdb_engine.backup.repository.BackupJobRepository;
-import com.shravan.resilientdb_engine.backup.service.BackupExecutionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -14,11 +13,8 @@ import org.springframework.stereotype.Component;
 public class BackupStatusEventListener {
     private static final Logger log = LoggerFactory.getLogger(BackupStatusEventListener.class);
     private final BackupJobRepository backupJobRepository;
-    private final BackupExecutionService backupExecutionService;
-    public BackupStatusEventListener(BackupJobRepository backupJobRepository,
-                                     BackupExecutionService backupExecutionService) {
+    public BackupStatusEventListener(BackupJobRepository backupJobRepository) {
         this.backupJobRepository = backupJobRepository;
-        this.backupExecutionService = backupExecutionService;
     }
     @EventListener
     public void handleStatusChange(BackupStatusChangedEvent event) {
@@ -38,10 +34,11 @@ public class BackupStatusEventListener {
                         backupJob.getMaxRetries());
                 // Increment retry count
                 backupJob.setRetryCount(backupJob.getRetryCount() + 1);
+                // Reset status to PENDING so it gets picked up by BackupJobProcessorService
+                backupJob.setStatus(BackupStatus.PENDING);
+                backupJob.setErrorMessage(null); // Clear error message for retry
                 // Save updated job state
-                BackupJob savedJob = backupJobRepository.save(backupJob);
-                // Trigger async execution
-                backupExecutionService.executeBackupAsync(savedJob);
+                backupJobRepository.save(backupJob);
             } else {
                 log.error("Backup job {} failed permanently after {} attempts.",
                         backupJob.getJobName(),

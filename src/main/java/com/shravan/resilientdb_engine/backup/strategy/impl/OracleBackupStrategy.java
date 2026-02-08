@@ -9,12 +9,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class OracleBackupStrategy implements BackupStrategy {
     @Override
-    public boolean supports(DatabaseType databaseType) {
-        return databaseType == DatabaseType.ORACLE;
+    public DatabaseType getSupportedType() {
+        return DatabaseType.ORACLE;
     }
     @Override
-    public void executeBackup(BackupJob backupJob) {
+    public void executeBackup(BackupJob backupJob) throws Exception {
         // Simulation of Oracle backup execution
         System.out.println("Executing Oracle database backup for job: " + backupJob.getJobName());
+        Thread.sleep(3000); // Simulate work
     }
 }

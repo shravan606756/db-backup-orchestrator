@@ -36,7 +36,7 @@ public class BackupExecutionService {
             updateStatus(backupJob, BackupStatus.IN_PROGRESS, null);
             // Find strategy
             BackupStrategy strategy = backupStrategies.stream()
-                    .filter(s -> s.supports(backupJob.getDatabaseType()))
+                    .filter(s -> s.getSupportedType() == backupJob.getDatabaseType())
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException(
                             "No strategy found for database type: " + backupJob.getDatabaseType()));
